@@ -17,40 +17,40 @@ const Navbar = () => {
 
   return (
     <nav className="w-full border-b bg-white">
-      <div className="mx-auto max-w-6xl px-6">
+      <div className="mx-auto max-w-7xl px-6">
         <div className="flex h-[72px] items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-600">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-600">
               <Image
                 src="/logo-icon.png"
                 alt="বাজার দর লোগো"
-                width={30}
-                height={30}
+                width={28}
+                height={28}
               />
             </div>
 
             <div className="flex flex-col">
-              <span className="text-xl font-bold text-gray-900">
+              <span className="text-lg font-bold text-gray-900">
                 বাজার দর
               </span>
 
-              <span className="text-xs text-gray-500">
+              <span className="text-[11px] text-gray-500">
                 মঙ্গলবার, ৬ অক্টোবর, ২০২৬
               </span>
             </div>
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <Link
               href="/signin"
-              className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+              className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
             >
               সাইন ইন
             </Link>
 
             <Link
               href="/signup"
-              className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
+              className="rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700"
             >
               সাইন আপ
             </Link>
@@ -63,7 +63,7 @@ const Navbar = () => {
               <li key={category.slug}>
                 <Link
                   href={`/category/${category.slug}`}
-                  className="flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-green-50 hover:text-green-700"
+                  className="flex items-center gap-1 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-green-50 hover:text-green-700"
                 >
                   <span>{category.icon}</span>
                   <span>{category.name}</span>
