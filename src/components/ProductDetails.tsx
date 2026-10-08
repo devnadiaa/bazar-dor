@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import { authClient } from "@/lib/auth-client";
 
 interface Market {
 market: string;
@@ -49,9 +52,26 @@ maximumFractionDigits: 1,
 };
 
 const ProductDetails = ({ id }: ProductDetailsProps) => {
+const router = useRouter();
+const { data: session, isPending } = authClient.useSession();
+
 const [product, setProduct] = useState<Product | null>(null);
 const [loading, setLoading] = useState(true);
 const [error, setError] = useState(false);
+
+useEffect(() => {
+if (isPending) {
+return;
+}
+
+
+if (!session?.user) {
+  toast.error("বিস্তারিত দেখতে আগে সাইন ইন করুন।");
+  router.replace("/signin");
+}
+
+
+}, [session, isPending, router]);
 
 useEffect(() => {
 const fetchProduct = async () => {
@@ -61,7 +81,7 @@ setError(false);
 
 
     const response = await fetch(
-      `https://api.api-store.workers.dev/api/bazardor/products/${id}`
+      `https://api.abcz.workers.dev/api/bazardor/products/${id}`
     );
 
     if (!response.ok) {
@@ -79,15 +99,34 @@ setError(false);
   }
 };
 
-if (id) {
+if (id && session?.user) {
   fetchProduct();
 }
 
 
-}, [id]);
+}, [id, session]);
+
+if (isPending || !session?.user) {
+return ( <main className="min-h-[70vh] bg-[#FAFAFA] py-10"> <div className="mx-auto max-w-[1120px] animate-pulse px-4 lg:px-0"> <div className="h-4 w-40 rounded bg-gray-200" />
+
+
+      <div className="mt-6 h-48 rounded-2xl bg-white" />
+
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="h-32 rounded-xl bg-white" />
+        <div className="h-32 rounded-xl bg-white" />
+        <div className="h-32 rounded-xl bg-white" />
+      </div>
+    </div>
+  </main>
+);
+
+
+}
 
 if (loading) {
 return ( <main className="min-h-[70vh] bg-[#FAFAFA] py-10"> <div className="mx-auto max-w-[1120px] animate-pulse px-4 lg:px-0"> <div className="h-4 w-40 rounded bg-gray-200" />
+
 
       <div className="mt-6 h-48 rounded-2xl bg-white" />
 

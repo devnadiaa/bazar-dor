@@ -22,7 +22,7 @@ const PriceTicker = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       const res = await fetch(
-        "https://api.api-store.workers.dev/api/bazardor/products"
+        "https://api.abcz.workers.dev/api/bazardor/products"
       );
 
       const data = await res.json();
@@ -38,15 +38,15 @@ const PriceTicker = () => {
   }
 
   return (
-    <div className="h-[37px] w-full border-b bg-gray-100 text-gray-800">
-      <div className="mx-auto flex h-full max-w-7xl">
-        <div className="min-w-0 flex-1 overflow-hidden">
+    <div className="w-full border-b bg-gray-100 text-gray-800">
+      <div className="mx-auto flex h-[37px] max-w-7xl">
+        <div className="w-full overflow-hidden">
           <MarqueeText
-            className="flex h-full items-center"
+            className="h-full"
             direction="right"
-            duration={32}
+            duration={24}
           >
-            <div className="flex h-full items-center whitespace-nowrap">
+            <div className="flex h-[37px] items-center whitespace-nowrap">
               {products.map((product) => (
                 <span key={product.id} className="flex items-center">
                   <span>
