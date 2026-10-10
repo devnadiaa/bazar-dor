@@ -101,7 +101,7 @@ const SignUpPage = () => {
               type="text"
               required
               minLength={3}
-              placeholder="যেমন: রহিম উদ্দিন"
+              placeholder="Your name"
               className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none transition focus:border-[#00875A]"
             />
           </div>
