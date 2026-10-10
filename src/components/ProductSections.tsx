@@ -137,7 +137,7 @@ function ProductGrid({ products }: { products: Product[] }) {
 
 export default async function ProductSections() {
   const res = await fetch(
-    "https://api.abcz.workers.dev/api/bazardor/products"
+    "https://openapi.programming-hero.com/api/bazardor/products"
   );
 
   if (!res.ok) {
@@ -154,8 +154,7 @@ export default async function ProductSections() {
   const fallers = products
     .filter((product) => product.change.dir === "down")
     .sort(
-      (a, b) =>
-        Math.abs(b.change.pct) - Math.abs(a.change.pct)
+      (a, b) => Math.abs(b.change.pct) - Math.abs(a.change.pct)
     )
     .slice(0, 6);
 

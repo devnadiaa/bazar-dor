@@ -50,15 +50,11 @@ const toBanglaNumber = (value: number): string => {
 
 function getProductIcon(nameBn: string, categoryIcon: string) {
   if (nameBn.includes("চাল")) return "🍚";
-  if (
-    nameBn.includes("ডাল") ||
-    nameBn.includes("ছোলা")
-  ) {
+  if (nameBn.includes("ডাল") || nameBn.includes("ছোলা")) {
     return "🫘";
   }
   if (nameBn.includes("সরিষার তেল")) return "🫙";
   if (nameBn.includes("পাম তেল")) return "🛢️";
-
   if (nameBn.includes("আলু")) return "🥔";
   if (nameBn.includes("পেঁয়াজ") || nameBn.includes("পিঁয়াজ")) {
     return "🧅";
@@ -66,23 +62,19 @@ function getProductIcon(nameBn: string, categoryIcon: string) {
   if (nameBn.includes("কাঁচামরিচ")) return "🌶️";
   if (nameBn.includes("বেগুন")) return "🍆";
   if (nameBn.includes("ঢেঁড়স")) return "🥬";
-
   if (nameBn.includes("রুই মাছ")) return "🐟";
   if (nameBn.includes("তেলাপিয়া")) return "🐠";
   if (nameBn.includes("ইলিশ মাছ")) return "🐟";
   if (nameBn.includes("কাতলা মাছ")) return "🐡";
   if (nameBn.includes("চিংড়ি মাছ")) return "🦐";
-
   if (nameBn.includes("মুরগির মাংস")) return "🍗";
   if (nameBn.includes("গরুর মাংস")) return "🥩";
   if (nameBn.includes("খাসির মাংস")) return "🍖";
   if (nameBn.includes("হাঁসের মাংস")) return "🦆";
-
   if (nameBn.includes("ডিম")) return "🥚";
   if (nameBn.includes("দুধ")) return "🥛";
   if (nameBn.includes("দই")) return "🥣";
   if (nameBn.includes("মাখন")) return "🧈";
-
   if (nameBn.includes("আদা")) return "🫚";
   if (nameBn.includes("রসুন")) return "🧄";
   if (nameBn.includes("মরিচ গুঁড়া")) return "🌶️";
@@ -157,13 +149,11 @@ const ProductSkeleton = () => {
 
         <div className="flex-1">
           <div className="h-4 w-32 animate-pulse rounded bg-gray-200" />
-
           <div className="mt-2 h-3 w-20 animate-pulse rounded bg-gray-100" />
 
           <div className="mt-5 flex items-end justify-between">
             <div>
               <div className="h-3 w-16 animate-pulse rounded bg-gray-100" />
-
               <div className="mt-2 h-5 w-24 animate-pulse rounded bg-gray-200" />
             </div>
 
@@ -194,10 +184,10 @@ const CategoryProducts = ({ slug }: CategoryProductsProps) => {
       try {
         const [categoryResponse, productsResponse] = await Promise.all([
           fetch(
-            `https://api.abcz.workers.dev/api/bazardor/categories/${encodeURIComponent(slug)}`
+            `https://openapi.programming-hero.com/api/bazardor/categories/${encodeURIComponent(slug)}`
           ),
           fetch(
-            `https://api.abcz.workers.dev/api/bazardor/products?category=${encodeURIComponent(slug)}`
+            `https://openapi.programming-hero.com/api/bazardor/products?category=${encodeURIComponent(slug)}`
           ),
         ]);
 
@@ -255,13 +245,11 @@ const CategoryProducts = ({ slug }: CategoryProductsProps) => {
         <div className="mx-auto max-w-[1120px] px-4 lg:px-0">
           <div className="mb-6 bg-white p-5 sm:p-6">
             <div className="h-7 w-28 animate-pulse rounded bg-gray-200" />
-
             <div className="mt-2 h-4 w-56 animate-pulse rounded bg-gray-100" />
           </div>
 
           <div className="mb-5 flex items-center justify-between gap-4">
             <div className="h-4 w-36 animate-pulse rounded bg-gray-200" />
-
             <div className="h-10 w-48 animate-pulse rounded-lg bg-gray-200" />
           </div>
 
@@ -374,9 +362,7 @@ const CategoryProducts = ({ slug }: CategoryProductsProps) => {
 
             <select
               value={sort}
-              onChange={(event) =>
-                setSort(event.target.value as SortOption)
-              }
+              onChange={(event) => setSort(event.target.value as SortOption)}
               className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-[#00875A]"
             >
               <option value="default">ডিফল্ট</option>
