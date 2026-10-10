@@ -7,7 +7,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import PriceTicker from "@/components/PriceTicker";
 import Footer from "@/components/Footer";
-import { Toaster } from "react-hot-toast";
+import AuthToast from "@/components/AuthToast";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -40,7 +40,7 @@ export default function RootLayout({
         <PriceTicker />
         {children}
         <Footer />
-        <Toaster position="top-center" />
+        <AuthToast />
       </body>
     </html>
   );
