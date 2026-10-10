@@ -11,7 +11,6 @@ interface Product {
   categoryNameBn: string;
   categoryIcon: string;
   unit: string;
-  image: string;
   today: number;
   yesterday: number;
   lastWeek: number;
@@ -20,6 +19,13 @@ interface Product {
     dir: "up" | "down" | "flat";
     pct: number;
   };
+}
+
+interface Category {
+  id: string | number;
+  slug: string;
+  nameBn: string;
+  icon: string;
 }
 
 type SortOption = "default" | "low" | "high";
@@ -42,6 +48,49 @@ const toBanglaNumber = (value: number): string => {
   });
 };
 
+function getProductIcon(nameBn: string, categoryIcon: string) {
+  if (nameBn.includes("চাল")) return "🍚";
+  if (
+    nameBn.includes("ডাল") ||
+    nameBn.includes("ছোলা")
+  ) {
+    return "🫘";
+  }
+  if (nameBn.includes("সরিষার তেল")) return "🫙";
+  if (nameBn.includes("পাম তেল")) return "🛢️";
+
+  if (nameBn.includes("আলু")) return "🥔";
+  if (nameBn.includes("পেঁয়াজ") || nameBn.includes("পিঁয়াজ")) {
+    return "🧅";
+  }
+  if (nameBn.includes("কাঁচামরিচ")) return "🌶️";
+  if (nameBn.includes("বেগুন")) return "🍆";
+  if (nameBn.includes("ঢেঁড়স")) return "🥬";
+
+  if (nameBn.includes("রুই মাছ")) return "🐟";
+  if (nameBn.includes("তেলাপিয়া")) return "🐠";
+  if (nameBn.includes("ইলিশ মাছ")) return "🐟";
+  if (nameBn.includes("কাতলা মাছ")) return "🐡";
+  if (nameBn.includes("চিংড়ি মাছ")) return "🦐";
+
+  if (nameBn.includes("মুরগির মাংস")) return "🍗";
+  if (nameBn.includes("গরুর মাংস")) return "🥩";
+  if (nameBn.includes("খাসির মাংস")) return "🍖";
+  if (nameBn.includes("হাঁসের মাংস")) return "🦆";
+
+  if (nameBn.includes("ডিম")) return "🥚";
+  if (nameBn.includes("দুধ")) return "🥛";
+  if (nameBn.includes("দই")) return "🥣";
+  if (nameBn.includes("মাখন")) return "🧈";
+
+  if (nameBn.includes("আদা")) return "🫚";
+  if (nameBn.includes("রসুন")) return "🧄";
+  if (nameBn.includes("মরিচ গুঁড়া")) return "🌶️";
+  if (nameBn.includes("ধনেপাতা গুঁড়া")) return "🌿";
+
+  return categoryIcon;
+}
+
 const ProductCard = ({ product }: { product: Product }) => {
   const isUp = product.change.dir === "up";
   const isDown = product.change.dir === "down";
@@ -53,7 +102,7 @@ const ProductCard = ({ product }: { product: Product }) => {
     >
       <div className="flex items-start gap-4">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#F4F6F8] text-2xl">
-          {product.image}
+          {getProductIcon(product.nameBn, product.categoryIcon)}
         </div>
 
         <div className="min-w-0 flex-1">
@@ -128,29 +177,53 @@ const ProductSkeleton = () => {
 
 const CategoryProducts = ({ slug }: CategoryProductsProps) => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [category, setCategory] = useState<Category | null>(null);
   const [sort, setSort] = useState<SortOption>("default");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [categoryNotFound, setCategoryNotFound] = useState(false);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchCategoryProducts = async () => {
       setLoading(true);
       setError(false);
+      setCategoryNotFound(false);
+      setCategory(null);
+      setProducts([]);
 
       try {
-        const response = await fetch(
-          `https://api.abcz.workers.dev/api/bazardor/products?category=${encodeURIComponent(slug)}`
-        );
+        const [categoryResponse, productsResponse] = await Promise.all([
+          fetch(
+            `https://api.abcz.workers.dev/api/bazardor/categories/${encodeURIComponent(slug)}`
+          ),
+          fetch(
+            `https://api.abcz.workers.dev/api/bazardor/products?category=${encodeURIComponent(slug)}`
+          ),
+        ]);
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch products");
+        if (categoryResponse.status === 404) {
+          setCategoryNotFound(true);
+          return;
         }
 
-        const data: Product[] = await response.json();
+        if (!categoryResponse.ok || !productsResponse.ok) {
+          throw new Error("Failed to fetch category or products");
+        }
 
-        setProducts(data);
+        const categoryData: Category = await categoryResponse.json();
+        const productsData: Product[] = await productsResponse.json();
+
+        if (
+          !categoryData ||
+          !categoryData.slug ||
+          !Array.isArray(productsData)
+        ) {
+          throw new Error("Invalid API response");
+        }
+
+        setCategory(categoryData);
+        setProducts(productsData);
       } catch {
-        setProducts([]);
         setError(true);
       } finally {
         setLoading(false);
@@ -158,7 +231,7 @@ const CategoryProducts = ({ slug }: CategoryProductsProps) => {
     };
 
     if (slug) {
-      fetchProducts();
+      fetchCategoryProducts();
     }
   }, [slug]);
 
@@ -202,18 +275,18 @@ const CategoryProducts = ({ slug }: CategoryProductsProps) => {
     );
   }
 
-  if (error || products.length === 0) {
+  if (categoryNotFound) {
     return (
       <main className="flex min-h-[60vh] w-full items-center justify-center bg-[#FAFAFA] px-4 py-12">
         <div className="text-center">
-          <div className="text-5xl">📦</div>
+          <div className="text-5xl">🔎</div>
 
           <h1 className="mt-4 text-2xl font-bold text-gray-900">
-            এই ক্যাটাগরির কোনো পণ্য পাওয়া যায়নি
+            ক্যাটাগরি পাওয়া যায়নি
           </h1>
 
           <p className="mt-2 text-sm text-gray-500">
-            ক্যাটাগরিটি সঠিক কিনা যাচাই করে আবার চেষ্টা করুন।
+            সঠিক ক্যাটাগরি নির্বাচন করে আবার চেষ্টা করুন।
           </p>
 
           <Link
@@ -227,15 +300,63 @@ const CategoryProducts = ({ slug }: CategoryProductsProps) => {
     );
   }
 
-  const category = products[0];
+  if (error || !category) {
+    return (
+      <main className="flex min-h-[60vh] w-full items-center justify-center bg-[#FAFAFA] px-4 py-12">
+        <div className="text-center">
+          <div className="text-5xl">⚠️</div>
+
+          <h1 className="mt-4 text-2xl font-bold text-gray-900">
+            তথ্য লোড করা যায়নি
+          </h1>
+
+          <p className="mt-2 text-sm text-gray-500">
+            অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন।
+          </p>
+
+          <Link
+            href="/"
+            className="mt-6 inline-flex rounded-lg bg-[#00875A] px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-[#006C48]"
+          >
+            হোম পেজে ফিরে যান
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  if (products.length === 0) {
+    return (
+      <main className="flex min-h-[60vh] w-full items-center justify-center bg-[#FAFAFA] px-4 py-12">
+        <div className="text-center">
+          <div className="text-5xl">📦</div>
+
+          <h1 className="mt-4 text-2xl font-bold text-gray-900">
+            এই ক্যাটাগরিতে কোনো পণ্য নেই
+          </h1>
+
+          <p className="mt-2 text-sm text-gray-500">
+            অন্য ক্যাটাগরি দেখে নিতে পারেন।
+          </p>
+
+          <Link
+            href="/"
+            className="mt-6 inline-flex rounded-lg bg-[#00875A] px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-[#006C48]"
+          >
+            হোম পেজে ফিরে যান
+          </Link>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="w-full bg-[#FAFAFA] py-8">
       <div className="mx-auto max-w-[1120px] px-4 lg:px-0">
         <div className="mb-6 bg-white p-5 sm:p-6">
           <h1 className="flex items-center gap-2 text-2xl font-extrabold text-gray-900">
-            <span>{category.categoryIcon}</span>
-            <span>{category.categoryNameBn}</span>
+            <span>{category.icon}</span>
+            <span>{category.nameBn}</span>
           </h1>
 
           <p className="mt-1 text-sm text-gray-400">

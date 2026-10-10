@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
@@ -12,7 +12,13 @@ const ProfilePage = () => {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
 
-  if (isPending) {
+  useEffect(() => {
+    if (!isPending && !session?.user) {
+      router.replace("/signin");
+    }
+  }, [isPending, session, router]);
+
+  if (isPending || !session?.user) {
     return (
       <main className="min-h-[70vh] bg-[#F8F9FA] px-4 py-10">
         <div className="mx-auto max-w-[800px] space-y-6">
@@ -20,15 +26,10 @@ const ProfilePage = () => {
             <div className="h-7 w-48 rounded bg-gray-200" />
             <div className="mt-3 h-4 w-64 rounded bg-gray-200" />
           </div>
-          <div className="h-40 rounded-2xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)] animate-pulse" />
+          <div className="h-40 animate-pulse rounded-2xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)]" />
         </div>
       </main>
     );
-  }
-
-  if (!session?.user) {
-    router.replace("/signin");
-    return null;
   }
 
   const currentName = session.user.name || "User";
@@ -36,34 +37,56 @@ const ProfilePage = () => {
 
   const handleUpdate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
     if (!name.trim()) {
       toast.error("নাম লিখুন");
       return;
     }
+
     setLoading(true);
-    const { error } = await authClient.updateUser({
-      name: name.trim(),
-    });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message || "তথ্য আপডেট করা যায়নি");
-      return;
+
+    try {
+      const { error } = await authClient.updateUser({
+        name: name.trim(),
+      });
+
+      if (error) {
+        toast.error(error.message || "তথ্য আপডেট করা যায়নি");
+        return;
+      }
+
+      setName("");
+      toast.success("তথ্য সফলভাবে আপডেট হয়েছে");
+    } catch {
+      toast.error("তথ্য আপডেট করা যায়নি");
+    } finally {
+      setLoading(false);
     }
-    setName("");
-    toast.success("তথ্য সফলভাবে আপডেট হয়েছে");
   };
 
   const handleSignOut = async () => {
-    await authClient.signOut();
-    toast.success("সফলভাবে সাইন আউট হয়েছে");
-    router.push("/");
+    try {
+      const { error } = await authClient.signOut();
+
+      if (error) {
+        toast.error("সাইন আউট করা যায়নি");
+        return;
+      }
+
+      toast.success("সফলভাবে সাইন আউট হয়েছে");
+      router.push("/");
+    } catch {
+      toast.error("সাইন আউট করা যায়নি");
+    }
   };
 
   return (
     <main className="min-h-screen bg-[#F8F9FA] px-4 py-10 font-sans antialiased">
       <div className="mx-auto max-w-[880px] space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#1A1A1A]">আমার প্রোফাইল</h1>
+          <h1 className="text-2xl font-bold text-[#1A1A1A]">
+            আমার প্রোফাইল
+          </h1>
           <p className="mt-1 text-sm text-[#737373]">
             আপনার অ্যাকাউন্টের তথ্য এখানে দেখুন।
           </p>
@@ -76,14 +99,21 @@ const ProfilePage = () => {
                 src={userImage}
                 alt={currentName}
                 fill
+                sizes="64px"
                 className="object-cover"
               />
             </div>
+
             <div>
-              <h2 className="text-xl font-bold text-[#1A1A1A]">{currentName}</h2>
-              <p className="text-sm text-[#737373]">{session.user.email}</p>
+              <h2 className="text-xl font-bold text-[#1A1A1A]">
+                {currentName}
+              </h2>
+              <p className="text-sm text-[#737373]">
+                {session.user.email}
+              </p>
             </div>
           </div>
+
           <button
             type="button"
             onClick={handleSignOut}
@@ -95,6 +125,7 @@ const ProfilePage = () => {
 
         <div className="rounded-2xl border border-[#F0F0F0] bg-white p-8 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
           <h3 className="text-lg font-bold text-[#1A1A1A]">তথ্য</h3>
+
           <form onSubmit={handleUpdate} className="mt-6">
             <div className="space-y-2">
               <label
@@ -103,6 +134,7 @@ const ProfilePage = () => {
               >
                 নাম
               </label>
+
               <input
                 id="name"
                 name="name"
@@ -113,6 +145,7 @@ const ProfilePage = () => {
                 className="h-12 w-full rounded-xl border border-[#E5E5E5] bg-[#FAFAFA] px-4 text-sm text-[#1A1A1A] outline-none transition placeholder:text-[#A3A3A3] focus:border-[#10B981] focus:bg-white"
               />
             </div>
+
             <button
               type="submit"
               disabled={loading}
